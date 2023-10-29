@@ -1,6 +1,7 @@
 ---
 title: "ZAP: Anomaly Detection"
 author: "Dhruv Nirmal and Kumar Vatsal"
+toc: true
 format: pdf
 editor: visual
 ---
@@ -12,7 +13,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 ```{r}
 library(tidyverse)
 library(kableExtra)
-datades <- read_csv("data_type.csv")
+datades <- read_csv("datatype.csv")
 ```
 
 # Abstract
@@ -82,7 +83,7 @@ NOTE: Due to the nature of the confidentiality of the data, for this report, the
 The data description is as follows:
 
 ```{r}
-d <- read_csv("data_type.csv")
+d <- read_csv("datatype.csv")
 d %>%
   kbl(caption = "Data Description of matrics contract awarded") %>%
   kable_styling(bootstrap_options = "striped", position = "left", font_size = 7)
@@ -210,4 +211,112 @@ IsolationForest is a function of a library named **sklearn.ensemble** which help
 ![Figure 12 : Visualising result of IsolationForest](figures/IFvis.png)
 
 Figure 9 visualises Isolation Forest applied on the dataset ‘metric_contract_awarded’. The Blue dots represent anomalies and the Yellow dots are the normal points. The graph is faceted by ‘DTP_group’ to visualise anomalies by one of the four important aggregations as an example.
+
+
+### Local Outlier Factor 
+
+LOF performs well when the density of the data is not the same throughout the dataset. It is an unsupervised machine learning technique. It is effective in identifying outliers by using the nearest neighbourhood density of data points. In essence, LOF considers K-neighbours, or the set of points that are inside the K-distance (radius) circle, and K-distance, or the distance between the points. The distance between a point and its Kᵗʰ nearest neighbour is known as the K-distance. A collection of points that are inside or on the circle of radius K-distance is included in the K-neighbours represented by Nₖ(A). 
+
+LOF uses local reachability density to assign a data point as an outlier or not. It is the inverse of the average reachability distance of a point from its neighbours. In the context of the Local Reachability Density (LRD) formula, when the average reachability distance is higher, it indicates that the nearby points are located at a greater distance from a specific point. This, in turn, suggests that there is a lower density of points in the vicinity of that point. In simpler terms, a low LRD value signifies that the nearest cluster of points is located quite a distance away from the point in question. The Local Outlier Factor (LOF) calculation involves comparing the Local Reachability Density (LRD) of each point with the average LRD of its K neighbours. LOF is essentially the ratio of the average LRD of a point's K neighbours to the LRD of the point itself.
+
+
+
+```{r}
+knitr::include_graphics("figures/LOF.png")
+```
+
+
+
+
+After obtaining the LRD values for all data points, the LOF score for each point is determined. The LOF (scores) for a point is the ratio of the LRD of that point to the average LRD of its k-nearest neighbours. LOF values are calculated in such a way that they provide a relative measure of how a point's density compares to that of its neighbours. 
+
+In simple terms, if a point is not considered an outlier (i.e., it's an inlier), the ratio of the average LRD of its neighbours will be approximately equal to its own LRD because the point and its neighbours have similar densities. In this scenario, the LOF value will be close to 1. Conversely, if a point is an outlier, its LRD will be lower than the average LRD of its neighbours, resulting in a higher LOF value. Typically, a LOF greater than 1 is indicative of an outlier. However, this rule doesn't always hold true. For instance, if we are aware that there is only one outlier in the dataset, we can identify it by selecting the point with the highest LOF value from all the LOF values calculated. The default metric to use for distance comparison is minkowski in python. (Jayaswal, 2021)
+
+
+#### Application in Python 
+
+ To apply the Local Outlier Factor method of anomaly detection in Python, **sklearn.neighbors** library was used. The function used was **LocalOutlierFactor**. The main parameters of the **LocalOutlierFactor** function are: 
+
+* n_neighbours: The default number of neighbours to be utilized for k-neighbors queries. If the specified value of "n_neighbors" exceeds the total number of available samples, all available samples will be used.  (Sklearn.Neighbors.LocalOutlierFactor, n.d.)
+
+* Contamination: It defined as the proportion of the data we expect to be anomalous. 
+
+
+```{r}
+knitr::include_graphics("figures/LOFcode.png")
+```
+
+
+From the code snippet above, it can be seen that: 
+
+* In the first line, the object model is being created which contains the base LOF model. 
+
+* In the second line, the column metric_value is being converted into an array. 
+
+* In the third line, the above created array is being converted into a 2-D array as it’s a requirement for the functions being used after this process. 
+
+* In the fourth line, a new column is being created titled **anomaly_lof**. This column is created using the **fit_predict** function. This column contains the values of 1 or -1 signifying if the observation is an anomaly or not. 
+
+* In the fifth line a new column is being created titled **scores_lof**. This column contains the values of the scores which are given to each observation by the LOF function. Higher the value of the score, more anomalous the observation. 
+
+![LOF result visualisation](figures/LOFvis.png)
+
+The above graph is the visualization of the Local Outlier Factor Model for the metric_contract_awarded table. The Blue values are Non anomalous while the red coloured data points are the anomalous ones. The Above graph is faceted by DTP_group which is one of the four important aggregations. 
+
+## Combining models
+
+Combining models using the AND logic, as discussed above, to get the anomalies common in both the models making the anomaly detection process fail proof in meeting DTP’s (clients) demands.
+
+![Visualising result after combinig models](figures/Combine.png)
+
+From the graph above, we can be observe anomalies common in both the models, with contamination factor equal to 0.025 or 2.5%.
+
+# Conclusion  
+
+After both the models for anomaly detection were finalized, two functions were created one each for LOF and Isolation Forest that loops over all the different aggregations and all the 7 datasets of interest. The output of these function was a data frame that had all the observations from all the datasets and two new columns one for the anomaly and other for the score. 
+
+Then a third function was created that combined the outputs of the above two functions using AND logic and return the top 20 anomalies for every month. This data was then used to populate a SQL table named anomaly in the database and this table will be used to for the creation of the last page for an existing Power BI dashboard that will be viewed by the DTP officials.  
+
+For further analysis, when a larger dataset is available, the anomalies detected using these functions can be used to label the data and the labelled data can be used for the purpose of supervised learning. Hence more anomaly detection models can be used, and future observations can be classified as anomalies using the newer models. 
+
+
+# Github Repo Link
+
+- **GitLab repo VCDI:**  https://gitlab.com/digital-vic/vcdi/rdp/rdp-analytics/analytics-use-cases/zap/zap-anomaly.
+
+- **GitHub Repo containing Report, Presentation and required code:**
+
+https://github.com/kvatsal2000/ETC-5543-Zap-Anomaly-Detection
+
+
+# References
+
+Victorian Centre for Data Insights. (2023, September 21). vic.gov.au. https://www.vic.gov.au/victorian-centre-data-insights
+
+SnapLogic. (2023, August 18). Azure Blob Storage - explanation & Overview. https://www.snaplogic.com/glossary/azure-blob-storage#:~:text=Azure%20Blob%20storage%20is%20a,as%20images%20and%20multimedia%20files.
+
+McDonald, A. (2022, September 29). Isolation Forest — Auto Anomaly Detection with Python. Medium. https://towardsdatascience.com/isolation-forest-auto-anomaly-detection-with-python-e7a8559d4562#:~:text=Isolation%20Forest%20is%20a%20model,the%20minimum%20and%20maximum%20values.
+
+Akshara. (2023, September 13). Anomaly detection using Isolation Forest – A Complete Guide. Analytics Vidhya. https://www.analyticsvidhya.com/blog/2021/07/anomaly-detection-using-isolation-forest-a-complete-guide/
+
+K, D. (2021, April 9). Anomaly detection using isolation forest in Python | Paperspace blog. Paperspace Blog. https://blog.paperspace.com/anomaly-detection-isolation-forest/
+
+Mathiarasan, K. (2023, October 16). What is Agile Workflow? | Steps to Create Agile Workflow - Kissflow. https://kissflow.com/workflow/guide-to-agile-workflow-process/#:~:text=Agile%20workflow%20refers%20to%20managing,and%20delivery%20of%20working%20software.
+
+Jira. (2022, November 30). https://www.productplan.com/glossary/jira/
+
+Wikipedia contributors. (2023, October 7). DBeaver. Wikipedia. https://en.wikipedia.org/wiki/DBeaver
+
+Jayaswal, V. (2021, December 15). Local Outlier Factor (LOF) — Algorithm for outlier identification. Medium. https://towardsdatascience.com/local-outlier-factor-lof-algorithm-for-outlier-identification-8efb887d9843
+
+sklearn.neighbors.LocalOutlierFactor. (n.d.). Scikit-learn. https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.LocalOutlierFactor.html
+
+
+
+
+
+
+
+
+
 
