@@ -30,7 +30,7 @@ The project is grounded in an Agile workflow that fosters flexibility, collabora
 
 Two machine learning models, the Isolation Forest and the Local Outlier Factor (LOF), have been employed for this purpose. The Isolation Forest excels in capturing high-value anomalies, while the LOF model excels in detecting both high and low-value anomalies. Combining the results of both models using the AND logic creates a robust detection system that ensures data integrity. The detection process is also highly adaptable, with the contamination factor as a variable that can be adjusted as per DTP's needs.
 
-Ultimately, the project aims to deliver a comprehensive set of anomalies common to both the Isolation Forest and LOF models. These anomalies are populated into a SQL table named "anomaly" and will be integrated into an existing Power BI dashboard. This dashboard, viewable by DTP officials, will provide valuable insights into procurement data. 
+Ultimately, the project aims to deliver a comprehensive set of anomalies common to both the Isolation Forest and LOF models. These anomalies are populated into a SQL table named "anomaly" and will be integrated into an existing Power BI dashboard. This dashboard, viewable by DTP officials, will provide valuable insights into procurement data.
 
 NOTE: Due to the nature of the confidentiality of the data, for this report, the analysis shown is of only one of the datasets namely **metrics_contract_awarded**.
 
@@ -83,8 +83,6 @@ Workflow of ZAP included several steps depicted in @fig-zap. The steps included:
 The data provided for anomaly detection was the procurement data for DTP. DTP gets several contracts every month for different groups. There might be some error while entering the data onto the database or there can be some fraudulent contracts that needs to be reviewed by the officials. For this analysis, 7 datasets or tables in the database which explained about the different aspects of the contracts submitted to DTP were used. The different datasets used were referred to as metrics. They explained different aspects of the data for example the contract value and the number of contracts awarded, the occurrence of contract splitting, was the contract submitted below or above the threshold and by how much.
 
 Most of the tables had similar format and structure. The common columns in the data frame were **reference_month**,**reference_year**,**reference_quarter**,**DTP_group** **DTP_division**,**DTP_region**,**Contract_category**,**metric_name**, **metric_value**,**metric_value_denominator**,**metric_value_numerator**.
-
-
 
 The data description is shown in @tbl-dts:
 
@@ -272,11 +270,12 @@ For further analysis, when a larger dataset is available, the anomalies detected
 
 # Github Repo Link
 
--   **GitLab repo VCDI:** https://gitlab.com/digital-vic/vcdi/rdp/rdp-analytics/analytics-use-cases/zap/zap-anomaly.
-
+-   **GitLab repo VCDI:** [HERE](https://gitlab.com/digital-vic/vcdi/rdp/rdp-analytics/analytics-use-cases/zap/zap-anomaly.
+)
 -   **GitHub Repo containing Report, Presentation and required code:**
+[HERE](https://github.com/kvatsal2000/ETC-5543-Zap-Anomaly-Detection
+)
 
-https://github.com/kvatsal2000/ETC-5543-Zap-Anomaly-Detection
 
 # References
 
